@@ -23,88 +23,81 @@ font-family:Arial;
 background:radial-gradient(circle,#070718,#000);
 color:#aefcff;
 overflow:hidden;
-user-select:none;
 text-align:center;
 }
 
-/* CORE CONTAINER */
+/* HUD */
 
-.core-wrap{
-position:relative;
-width:220px;
-height:220px;
-margin:40px auto;
+.hud{
+display:flex;
+align-items:center;
+gap:10px;
+padding:15px;
 }
 
-/* OUTER RING */
+.avatar{
+width:45px;
+height:45px;
+border-radius:50%;
+border:2px solid #00f0ff;
+box-shadow:0 0 15px #00f0ff;
+}
 
-.ring{
-position:absolute;
+/* PLANET */
+
+.planet-wrap{
+position:relative;
+width:240px;
+height:240px;
+margin:20px auto;
+cursor:pointer;
+}
+
+/* PLANET */
+
+.planet{
 width:100%;
 height:100%;
 border-radius:50%;
-border:2px solid #00f0ff;
-box-shadow:0 0 40px #00f0ff;
-animation:spin 8s linear infinite;
-}
-
-/* INNER RING */
-
-.ring2{
-position:absolute;
-width:80%;
-height:80%;
-top:10%;
-left:10%;
-border-radius:50%;
-border:2px solid #9d4dff;
-box-shadow:0 0 40px #9d4dff;
-animation:spinReverse 6s linear infinite;
-}
-
-/* CORE */
-
-.core{
-position:absolute;
-width:60%;
-height:60%;
-top:20%;
-left:20%;
-border-radius:50%;
-cursor:pointer;
 
 background:
-radial-gradient(circle,
+radial-gradient(circle at 30% 30%,
 #00f0ff,
 #9d4dff,
 #050510);
 
 box-shadow:
-0 0 40px #00f0ff,
-0 0 80px #9d4dff,
-inset 0 0 40px #00f0ff;
+0 0 60px #00f0ff,
+0 0 120px #9d4dff,
+inset 0 0 60px #00f0ff;
 
-animation:pulse 2s infinite;
+animation:rotatePlanet 20s linear infinite;
 }
 
-/* SPIN */
+/* GLOW RING */
 
-@keyframes spin{
-from{transform:rotate(0)}
-to{transform:rotate(360deg)}
+.ring{
+position:absolute;
+width:120%;
+height:120%;
+top:-10%;
+left:-10%;
+border-radius:50%;
+border:2px solid #00f0ff;
+box-shadow:0 0 40px #00f0ff;
+animation:spin 12s linear infinite;
 }
 
-@keyframes spinReverse{
-from{transform:rotate(360deg)}
-to{transform:rotate(0)}
-}
+/* PARTICLES */
 
-/* PULSE */
-
-@keyframes pulse{
-0%{transform:scale(1)}
-50%{transform:scale(1.08)}
-100%{transform:scale(1)}
+.particle{
+position:absolute;
+width:6px;
+height:6px;
+background:#00f0ff;
+border-radius:50%;
+box-shadow:0 0 10px #00f0ff;
+animation:float 4s infinite;
 }
 
 /* FLOAT TEXT */
@@ -114,12 +107,6 @@ position:absolute;
 color:#00f0ff;
 font-weight:bold;
 animation:floatUp 1s forwards;
-pointer-events:none;
-}
-
-@keyframes floatUp{
-from{opacity:1;transform:translateY(0)}
-to{opacity:0;transform:translateY(-60px)}
 }
 
 /* ENERGY */
@@ -139,7 +126,6 @@ height:100%;
 background:linear-gradient(
 90deg,#00f0ff,#9d4dff);
 width:100%;
-transition:.3s;
 }
 
 /* BUTTON */
@@ -147,7 +133,6 @@ transition:.3s;
 button{
 width:90%;
 padding:16px;
-font-size:16px;
 border:none;
 border-radius:16px;
 background:linear-gradient(
@@ -167,15 +152,45 @@ background:#070712;
 display:flex;
 justify-content:space-around;
 align-items:center;
-border-top:1px solid #15152a;
 }
 
-.tab{
-color:#666;
+/* ANIMATIONS */
+
+@keyframes spin{
+from{transform:rotate(0)}
+to{transform:rotate(360deg)}
 }
 
-.tab.active{
-color:#00f0ff;
+@keyframes rotatePlanet{
+from{transform:rotate(0)}
+to{transform:rotate(360deg)}
+}
+
+@keyframes float{
+0%{transform:translateY(0)}
+50%{transform:translateY(-20px)}
+100%{transform:translateY(0)}
+}
+
+@keyframes floatUp{
+to{
+opacity:0;
+transform:translateY(-60px);
+}
+}
+
+/* SHAKE */
+
+.shake{
+animation:shake .3s;
+}
+
+@keyframes shake{
+0%{transform:translate(0)}
+25%{transform:translate(3px,-3px)}
+50%{transform:translate(-3px,3px)}
+75%{transform:translate(3px,3px)}
+100%{transform:translate(0)}
 }
 
 </style>
@@ -183,16 +198,26 @@ color:#00f0ff;
 
 <body>
 
-<h2 id="welcome">Aether Miner</h2>
+<!-- HUD -->
 
-<!-- CORE -->
+<div class="hud">
 
-<div class="core-wrap"
+<img id="avatar"
+class="avatar">
+
+<div id="welcome">
+Welcome
+</div>
+
+</div>
+
+<!-- PLANET -->
+
+<div class="planet-wrap"
 onclick="mine(event)">
 
 <div class="ring"></div>
-<div class="ring2"></div>
-<div class="core"></div>
+<div class="planet"></div>
 
 </div>
 
@@ -223,13 +248,19 @@ Convert 10K AF → 1 AETH
 </button>
 
 <div class="navbar">
-<div class="tab active">Miner</div>
-<div class="tab">Convert</div>
+<div>Miner</div>
+<div>Convert</div>
 </div>
+
+<!-- SOUND -->
+
+<audio id="tapSound"
+src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3">
+</audio>
 
 <script>
 
-/* TELEGRAM USER */
+/* TELEGRAM */
 
 const tg=window.Telegram.WebApp;
 tg.expand();
@@ -237,8 +268,13 @@ tg.expand();
 let user=tg.initDataUnsafe?.user;
 
 if(user){
+
 welcome.innerText=
 "Welcome, "+user.first_name;
+
+avatar.src=
+user.photo_url ||
+"https://i.imgur.com/6VBx3io.png";
 }
 
 /* SAVE */
@@ -253,19 +289,20 @@ let energy=
 parseInt(localStorage.getItem("energy"))||100;
 
 const maxEnergy=100;
-const dailyLimit=5000;
 
 /* TAP */
 
 function mine(e){
 
 if(energy<=0)return;
-if(af>=dailyLimit)return;
 
 af++;
 energy--;
 
 floatText(e);
+shake();
+sound();
+
 save();
 updateUI();
 }
@@ -287,19 +324,33 @@ document.body.appendChild(el);
 setTimeout(()=>el.remove(),1000);
 }
 
+/* SHAKE */
+
+function shake(){
+
+document.body.classList.add("shake");
+
+setTimeout(()=>{
+document.body.classList.remove("shake");
+},300);
+}
+
+/* SOUND */
+
+function sound(){
+
+tapSound.currentTime=0;
+tapSound.play();
+}
+
 /* CONVERT */
 
 function convert(){
 
-if(af<10000){
-alert("Need 10K AF");
-return;
-}
+if(af<10000)return;
 
-let c=Math.floor(af/10000);
-
-aeth+=c;
-af-=c*10000;
+aeth++;
+af-=10000;
 
 save();
 updateUI();
@@ -346,6 +397,24 @@ const energyEl=document.getElementById("energy");
 const energyBar=document.getElementById("energyBar");
 
 updateUI();
+
+/* PARTICLES */
+
+setInterval(()=>{
+
+const p=document.createElement("div");
+p.className="particle";
+
+p.style.left=
+Math.random()*100+"%";
+
+p.style.top="60%";
+
+document.body.appendChild(p);
+
+setTimeout(()=>p.remove(),4000);
+
+},500);
 
 </script>
 
