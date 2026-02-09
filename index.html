@@ -14,109 +14,114 @@ content="width=device-width, initial-scale=1.0">
 /* ===== BODY ===== */
 
 body{
-  margin:0;
-  background:#050510;
-  color:#aefcff;
-  font-family:Arial;
-  overflow:hidden;
-  user-select:none;
+margin:0;
+font-family:Arial;
+background:radial-gradient(circle,#070718,#000);
+color:#aefcff;
+overflow:hidden;
+user-select:none;
 }
 
 /* ===== SCREENS ===== */
 
 .screen{
-  display:none;
-  height:calc(100vh - 80px);
-  padding:20px;
-  text-align:center;
+display:none;
+height:calc(100vh - 80px);
+padding:20px;
+text-align:center;
 }
 
-.screen.active{
-  display:block;
-}
+.active{display:block}
 
-/* ===== MINER CORE ===== */
+/* ===== CORE ===== */
 
 .core{
-  font-size:120px;
-  margin-top:40px;
-  cursor:pointer;
-  filter:drop-shadow(0 0 20px #00f0ff);
-  transition:0.1s;
+font-size:120px;
+margin-top:40px;
+cursor:pointer;
+filter:drop-shadow(0 0 25px #00f0ff);
+animation:pulse 2s infinite;
+transition:.1s;
+}
+
+@keyframes pulse{
+0%{filter:drop-shadow(0 0 10px #00f0ff)}
+50%{filter:drop-shadow(0 0 30px #9d4dff)}
+100%{filter:drop-shadow(0 0 10px #00f0ff)}
 }
 
 .core:active{
-  transform:scale(0.85);
+transform:scale(.85);
 }
 
-/* ===== ENERGY ===== */
+/* FLOAT TEXT */
+
+.float{
+position:absolute;
+color:#00f0ff;
+animation:floatUp 1s forwards;
+}
+
+@keyframes floatUp{
+from{opacity:1;transform:translateY(0)}
+to{opacity:0;transform:translateY(-60px)}
+}
+
+/* ENERGY */
 
 .bar{
-  width:90%;
-  height:20px;
-  margin:20px auto;
-  border-radius:12px;
-  overflow:hidden;
-  border:1px solid #00f0ff;
+width:90%;
+height:20px;
+margin:20px auto;
+border-radius:12px;
+overflow:hidden;
+border:1px solid #00f0ff;
 }
 
 .fill{
-  height:100%;
-  width:100%;
-  background:linear-gradient(
-  90deg,#00f0ff,#9d4dff);
-  transition:0.3s;
+height:100%;
+background:linear-gradient(
+90deg,#00f0ff,#9d4dff);
+width:100%;
+transition:.3s;
 }
 
-/* ===== BUTTON ===== */
+/* BUTTON */
 
 button{
-  width:90%;
-  padding:15px;
-  font-size:16px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(
-  90deg,#9d4dff,#ff2bd6);
-  color:white;
-  box-shadow:0 0 20px #9d4dff;
+width:90%;
+padding:15px;
+font-size:16px;
+border:none;
+border-radius:14px;
+background:linear-gradient(
+90deg,#9d4dff,#ff2bd6);
+color:white;
+box-shadow:0 0 20px #9d4dff;
 }
 
-/* ===== NAVBAR ===== */
+/* NAVBAR */
 
 .navbar{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  height:80px;
-  background:#070712;
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-  border-top:1px solid #15152a;
+position:fixed;
+bottom:0;
+width:100%;
+height:80px;
+background:#070712;
+display:flex;
+justify-content:space-around;
+align-items:center;
+border-top:1px solid #15152a;
 }
 
 .tab{
-  text-align:center;
-  color:#666;
-  font-size:12px;
-}
-
-.tab svg{
-  width:26px;
-  height:26px;
-  display:block;
-  margin:auto;
-  fill:#666;
+text-align:center;
+color:#666;
+font-size:12px;
 }
 
 .tab.active{
-  color:#00f0ff;
-}
-
-.tab.active svg{
-  fill:#00f0ff;
-  filter:drop-shadow(0 0 8px #00f0ff);
+color:#00f0ff;
 }
 
 </style>
@@ -124,32 +129,22 @@ button{
 
 <body>
 
-<!-- ===== MARKET ===== -->
-
-<div id="market" class="screen">
-<h2>Market</h2>
-<p>BTC — $65 000</p>
-<p>ETH — $3 200</p>
-<p>TON — $6.20</p>
-</div>
-
 <!-- ===== MINER ===== -->
 
 <div id="miner"
 class="screen active">
 
-<h2>Aether Miner</h2>
+<h2 id="welcome">Aether Miner</h2>
 
 <div class="core"
-onclick="mine()">🌀</div>
+onclick="mine(event)">🌀</div>
 
 <h3>Fragments:
 <span id="af">0</span>
 / 5 000</h3>
 
 <h3>Aether:
-<span id="aeth">0</span>
-</h3>
+<span id="aeth">0</span></h3>
 
 <div class="bar">
 <div class="fill"
@@ -160,15 +155,6 @@ id="energyBar"></div>
 <span id="energy">100</span>
 /100</p>
 
-</div>
-
-<!-- ===== QUESTS ===== -->
-
-<div id="quests"
-class="screen">
-<h2>Quests</h2>
-<p>Tap 100 times</p>
-<p>Invite 1 friend</p>
 </div>
 
 <!-- ===== CONVERT ===== -->
@@ -188,74 +174,88 @@ Convert 10K AF → 1 AETH
 
 <div class="navbar">
 
-<div class="tab"
-onclick="openTab('market',this)">
-📊<br>Market
-</div>
-
 <div class="tab active"
 onclick="openTab('miner',this)">
-⛏<br>Miner
-</div>
-
-<div class="tab"
-onclick="openTab('quests',this)">
-🎯<br>Quests
+Miner
 </div>
 
 <div class="tab"
 onclick="openTab('convert',this)">
-🔄<br>Convert
+Convert
 </div>
 
 </div>
 
 <script>
 
-/* Telegram */
-const tg =
-window.Telegram.WebApp;
+/* ===== TELEGRAM USER ===== */
+
+const tg = window.Telegram.WebApp;
 tg.expand();
 
-/* Data */
+let user =
+tg.initDataUnsafe?.user;
 
-let af = 0;
-let aeth = 0;
+if(user){
+document.getElementById(
+"welcome").innerText =
+"Welcome, "+user.first_name;
+}
 
-let energy = 100;
-const maxEnergy = 100;
-const dailyLimit = 5000;
+/* ===== SAVE LOAD ===== */
 
-/* Tap */
+let af =
+parseInt(localStorage
+.getItem("af")) || 0;
 
-function mine(){
+let aeth =
+parseInt(localStorage
+.getItem("aeth")) || 0;
 
-if(energy<=0) return;
-if(af>=dailyLimit) return;
+let energy =
+parseInt(localStorage
+.getItem("energy")) || 100;
+
+const maxEnergy=100;
+const dailyLimit=5000;
+
+/* ===== TAP ===== */
+
+function mine(e){
+
+if(energy<=0)return;
+if(af>=dailyLimit)return;
 
 af++;
 energy--;
 
-tapFX();
+floatText(e);
+save();
 updateUI();
 }
 
-/* FX */
+/* FLOAT +1 */
 
-function tapFX(){
-const core=
-document.querySelector(".core");
+function floatText(e){
 
-core.style.transform=
-"scale(1.2)";
+const el =
+document.createElement("div");
 
-setTimeout(()=>{
-core.style.transform=
-"scale(1)";
-},100);
+el.className="float";
+el.innerText="+1 AF";
+
+el.style.left =
+e.clientX+"px";
+
+el.style.top =
+e.clientY+"px";
+
+document.body.appendChild(el);
+
+setTimeout(()=>el.remove(),1000);
 }
 
-/* Convert */
+/* ===== CONVERT ===== */
 
 function convert(){
 
@@ -264,27 +264,43 @@ alert("Need 10K AF");
 return;
 }
 
-let c=
+let c =
 Math.floor(af/10000);
 
 aeth+=c;
 af-=c*10000;
 
+save();
 updateUI();
 }
 
-/* Energy regen */
+/* ===== ENERGY REGEN ===== */
 
 setInterval(()=>{
 
 if(energy<maxEnergy){
 energy++;
+save();
 updateUI();
 }
 
 },3000);
 
-/* UI */
+/* ===== SAVE ===== */
+
+function save(){
+
+localStorage
+.setItem("af",af);
+
+localStorage
+.setItem("aeth",aeth);
+
+localStorage
+.setItem("energy",energy);
+}
+
+/* ===== UI ===== */
 
 function updateUI(){
 
@@ -296,7 +312,7 @@ energyBar.style.width=
 (energy/maxEnergy*100)+"%";
 }
 
-/* Tabs */
+/* ===== TABS ===== */
 
 function openTab(id,el){
 
