@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Aether Miner</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<style>
+
+/* ===== BODY ===== */
+
+body{
+  margin:0;
+  background:#050510;
+  color:#aefcff;
+  font-family:Arial;
+  overflow:hidden;
+  user-select:none;
+}
+
+/* ===== SCREENS ===== */
+
+.screen{
+  display:none;
+  height:calc(100vh - 80px);
+  padding:20px;
+  text-align:center;
+}
+
+.screen.active{
+  display:block;
+}
+
+/* ===== MINER CORE ===== */
+
+.core{
+  font-size:120px;
+  margin-top:40px;
+  cursor:pointer;
+  filter:drop-shadow(0 0 20px #00f0ff);
+  transition:0.1s;
+}
+
+.core:active{
+  transform:scale(0.85);
+}
+
+/* ===== ENERGY ===== */
+
+.bar{
+  width:90%;
+  height:20px;
+  margin:20px auto;
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid #00f0ff;
+}
+
+.fill{
+  height:100%;
+  width:100%;
+  background:linear-gradient(
+  90deg,#00f0ff,#9d4dff);
+  transition:0.3s;
+}
+
+/* ===== BUTTON ===== */
+
+button{
+  width:90%;
+  padding:15px;
+  font-size:16px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(
+  90deg,#9d4dff,#ff2bd6);
+  color:white;
+  box-shadow:0 0 20px #9d4dff;
+}
+
+/* ===== NAVBAR ===== */
+
+.navbar{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  height:80px;
+  background:#070712;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  border-top:1px solid #15152a;
+}
+
+.tab{
+  text-align:center;
+  color:#666;
+  font-size:12px;
+}
+
+.tab svg{
+  width:26px;
+  height:26px;
+  display:block;
+  margin:auto;
+  fill:#666;
+}
+
+.tab.active{
+  color:#00f0ff;
+}
+
+.tab.active svg{
+  fill:#00f0ff;
+  filter:drop-shadow(0 0 8px #00f0ff);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ===== MARKET ===== -->
+
+<div id="market" class="screen">
+<h2>Market</h2>
+<p>BTC — $65 000</p>
+<p>ETH — $3 200</p>
+<p>TON — $6.20</p>
+</div>
+
+<!-- ===== MINER ===== -->
+
+<div id="miner"
+class="screen active">
+
+<h2>Aether Miner</h2>
+
+<div class="core"
+onclick="mine()">🌀</div>
+
+<h3>Fragments:
+<span id="af">0</span>
+/ 5 000</h3>
+
+<h3>Aether:
+<span id="aeth">0</span>
+</h3>
+
+<div class="bar">
+<div class="fill"
+id="energyBar"></div>
+</div>
+
+<p>Energy:
+<span id="energy">100</span>
+/100</p>
+
+</div>
+
+<!-- ===== QUESTS ===== -->
+
+<div id="quests"
+class="screen">
+<h2>Quests</h2>
+<p>Tap 100 times</p>
+<p>Invite 1 friend</p>
+</div>
+
+<!-- ===== CONVERT ===== -->
+
+<div id="convert"
+class="screen">
+
+<h2>Convert</h2>
+
+<button onclick="convert()">
+Convert 10K AF → 1 AETH
+</button>
+
+</div>
+
+<!-- ===== NAVBAR ===== -->
+
+<div class="navbar">
+
+<div class="tab"
+onclick="openTab('market',this)">
+📊<br>Market
+</div>
+
+<div class="tab active"
+onclick="openTab('miner',this)">
+⛏<br>Miner
+</div>
+
+<div class="tab"
+onclick="openTab('quests',this)">
+🎯<br>Quests
+</div>
+
+<div class="tab"
+onclick="openTab('convert',this)">
+🔄<br>Convert
+</div>
+
+</div>
+
+<script>
+
+/* Telegram */
+const tg =
+window.Telegram.WebApp;
+tg.expand();
+
+/* Data */
+
+let af = 0;
+let aeth = 0;
+
+let energy = 100;
+const maxEnergy = 100;
+const dailyLimit = 5000;
+
+/* Tap */
+
+function mine(){
+
+if(energy<=0) return;
+if(af>=dailyLimit) return;
+
+af++;
+energy--;
+
+tapFX();
+updateUI();
+}
+
+/* FX */
+
+function tapFX(){
+const core=
+document.querySelector(".core");
+
+core.style.transform=
+"scale(1.2)";
+
+setTimeout(()=>{
+core.style.transform=
+"scale(1)";
+},100);
+}
+
+/* Convert */
+
+function convert(){
+
+if(af<10000){
+alert("Need 10K AF");
+return;
+}
+
+let c=
+Math.floor(af/10000);
+
+aeth+=c;
+af-=c*10000;
+
+updateUI();
+}
+
+/* Energy regen */
+
+setInterval(()=>{
+
+if(energy<maxEnergy){
+energy++;
+updateUI();
+}
+
+},3000);
+
+/* UI */
+
+function updateUI(){
+
+afEl.innerText=af;
+aethEl.innerText=aeth;
+energyEl.innerText=energy;
+
+energyBar.style.width=
+(energy/maxEnergy*100)+"%";
+}
+
+/* Tabs */
+
+function openTab(id,el){
+
+document
+.querySelectorAll(".screen")
+.forEach(s=>s.classList
+.remove("active"));
+
+document
+.getElementById(id)
+.classList.add("active");
+
+document
+.querySelectorAll(".tab")
+.forEach(t=>t.classList
+.remove("active"));
+
+el.classList.add("active");
+}
+
+/* DOM */
+
+const afEl =
+document.getElementById("af");
+const aethEl =
+document.getElementById("aeth");
+const energyEl =
+document.getElementById("energy");
+const energyBar =
+document.getElementById("energyBar");
+
+updateUI();
+
+</script>
+
+</body>
+</html>
