@@ -11,7 +11,7 @@ content="width=device-width, initial-scale=1.0">
 
 <style>
 
-/* ===== GLOBAL ===== */
+/* GLOBAL */
 
 *{
 -webkit-tap-highlight-color: transparent;
@@ -24,77 +24,90 @@ background:radial-gradient(circle,#070718,#000);
 color:#aefcff;
 overflow:hidden;
 user-select:none;
-}
-
-/* ===== SCREEN ===== */
-
-.screen{
-height:calc(100vh - 80px);
-padding:20px;
 text-align:center;
 }
 
-/* ===== CORE REACTOR ===== */
+/* CORE CONTAINER */
+
+.core-wrap{
+position:relative;
+width:220px;
+height:220px;
+margin:40px auto;
+}
+
+/* OUTER RING */
+
+.ring{
+position:absolute;
+width:100%;
+height:100%;
+border-radius:50%;
+border:2px solid #00f0ff;
+box-shadow:0 0 40px #00f0ff;
+animation:spin 8s linear infinite;
+}
+
+/* INNER RING */
+
+.ring2{
+position:absolute;
+width:80%;
+height:80%;
+top:10%;
+left:10%;
+border-radius:50%;
+border:2px solid #9d4dff;
+box-shadow:0 0 40px #9d4dff;
+animation:spinReverse 6s linear infinite;
+}
+
+/* CORE */
 
 .core{
-width:170px;
-height:170px;
-margin:50px auto;
+position:absolute;
+width:60%;
+height:60%;
+top:20%;
+left:20%;
 border-radius:50%;
 cursor:pointer;
-position:relative;
 
 background:
 radial-gradient(circle,
-#00f0ff 0%,
-#9d4dff 40%,
-#050510 70%);
+#00f0ff,
+#9d4dff,
+#050510);
 
 box-shadow:
 0 0 40px #00f0ff,
 0 0 80px #9d4dff,
 inset 0 0 40px #00f0ff;
 
-animation:pulseCore 2s infinite;
+animation:pulse 2s infinite;
 }
 
-/* Inner glow */
+/* SPIN */
 
-.core::before{
-content:"";
-position:absolute;
-width:70%;
-height:70%;
-border-radius:50%;
-top:15%;
-left:15%;
-
-background:
-radial-gradient(circle,
-#ffffff,
-#00f0ff);
-
-opacity:.25;
+@keyframes spin{
+from{transform:rotate(0)}
+to{transform:rotate(360deg)}
 }
 
-/* Pulse */
+@keyframes spinReverse{
+from{transform:rotate(360deg)}
+to{transform:rotate(0)}
+}
 
-@keyframes pulseCore{
+/* PULSE */
+
+@keyframes pulse{
 0%{transform:scale(1)}
 50%{transform:scale(1.08)}
 100%{transform:scale(1)}
 }
 
-/* Tap press */
-
-.core:active{
-transform:scale(.9);
-box-shadow:
-0 0 60px #00f0ff,
-0 0 100px #9d4dff;
-}
-
-/* ===== FLOAT TEXT ===== */
+/* FLOAT TEXT */
 
 .float{
 position:absolute;
@@ -105,40 +118,11 @@ pointer-events:none;
 }
 
 @keyframes floatUp{
-from{
-opacity:1;
-transform:translateY(0);
-}
-to{
-opacity:0;
-transform:translateY(-60px);
-}
+from{opacity:1;transform:translateY(0)}
+to{opacity:0;transform:translateY(-60px)}
 }
 
-/* ===== WAVE ===== */
-
-.wave{
-position:absolute;
-width:170px;
-height:170px;
-border-radius:50%;
-border:2px solid #00f0ff;
-animation:wave 0.6s forwards;
-pointer-events:none;
-}
-
-@keyframes wave{
-from{
-opacity:1;
-transform:scale(1);
-}
-to{
-opacity:0;
-transform:scale(2);
-}
-}
-
-/* ===== ENERGY ===== */
+/* ENERGY */
 
 .bar{
 width:90%;
@@ -147,6 +131,7 @@ margin:20px auto;
 border-radius:12px;
 overflow:hidden;
 border:1px solid #00f0ff;
+box-shadow:0 0 15px #00f0ff;
 }
 
 .fill{
@@ -157,21 +142,21 @@ width:100%;
 transition:.3s;
 }
 
-/* ===== BUTTON ===== */
+/* BUTTON */
 
 button{
 width:90%;
-padding:15px;
+padding:16px;
 font-size:16px;
 border:none;
-border-radius:14px;
+border-radius:16px;
 background:linear-gradient(
 90deg,#9d4dff,#ff2bd6);
 color:white;
-box-shadow:0 0 20px #9d4dff;
+box-shadow:0 0 25px #9d4dff;
 }
 
-/* ===== NAVBAR ===== */
+/* NAVBAR */
 
 .navbar{
 position:fixed;
@@ -186,9 +171,7 @@ border-top:1px solid #15152a;
 }
 
 .tab{
-text-align:center;
 color:#666;
-font-size:12px;
 }
 
 .tab.active{
@@ -200,15 +183,17 @@ color:#00f0ff;
 
 <body>
 
-<div class="screen">
-
-<h2 id="welcome">
-Aether Miner
-</h2>
+<h2 id="welcome">Aether Miner</h2>
 
 <!-- CORE -->
-<div class="core"
+
+<div class="core-wrap"
 onclick="mine(event)">
+
+<div class="ring"></div>
+<div class="ring2"></div>
+<div class="core"></div>
+
 </div>
 
 <h3>
@@ -237,59 +222,40 @@ Energy:
 Convert 10K AF → 1 AETH
 </button>
 
-</div>
-
-<!-- NAVBAR -->
-
 <div class="navbar">
-
-<div class="tab active">
-Miner
-</div>
-
-<div class="tab">
-Convert
-</div>
-
+<div class="tab active">Miner</div>
+<div class="tab">Convert</div>
 </div>
 
 <script>
 
-/* ===== TELEGRAM USER ===== */
+/* TELEGRAM USER */
 
-const tg =
-window.Telegram.WebApp;
-
+const tg=window.Telegram.WebApp;
 tg.expand();
 
-let user =
-tg.initDataUnsafe?.user;
+let user=tg.initDataUnsafe?.user;
 
 if(user){
-document.getElementById(
-"welcome").innerText=
-"Welcome, "+
-user.first_name;
+welcome.innerText=
+"Welcome, "+user.first_name;
 }
 
-/* ===== LOAD SAVE ===== */
+/* SAVE */
 
-let af =
-parseInt(localStorage
-.getItem("af"))||0;
+let af=
+parseInt(localStorage.getItem("af"))||0;
 
-let aeth =
-parseInt(localStorage
-.getItem("aeth"))||0;
+let aeth=
+parseInt(localStorage.getItem("aeth"))||0;
 
-let energy =
-parseInt(localStorage
-.getItem("energy"))||100;
+let energy=
+parseInt(localStorage.getItem("energy"))||100;
 
 const maxEnergy=100;
 const dailyLimit=5000;
 
-/* ===== TAP ===== */
+/* TAP */
 
 function mine(e){
 
@@ -300,54 +266,28 @@ af++;
 energy--;
 
 floatText(e);
-waveEffect(e);
-
 save();
 updateUI();
 }
 
-/* FLOAT +1 */
+/* FLOAT */
 
 function floatText(e){
 
-const el=
-document.createElement("div");
+const el=document.createElement("div");
 
 el.className="float";
-el.innerText="+1 AF";
+el.innerText="+1";
 
-el.style.left=
-e.clientX+"px";
-
-el.style.top=
-e.clientY+"px";
+el.style.left=e.clientX+"px";
+el.style.top=e.clientY+"px";
 
 document.body.appendChild(el);
 
 setTimeout(()=>el.remove(),1000);
 }
 
-/* WAVE */
-
-function waveEffect(e){
-
-const wave=
-document.createElement("div");
-
-wave.className="wave";
-
-wave.style.left=
-(e.clientX-85)+"px";
-
-wave.style.top=
-(e.clientY-85)+"px";
-
-document.body.appendChild(wave);
-
-setTimeout(()=>wave.remove(),600);
-}
-
-/* ===== CONVERT ===== */
+/* CONVERT */
 
 function convert(){
 
@@ -356,8 +296,7 @@ alert("Need 10K AF");
 return;
 }
 
-let c=
-Math.floor(af/10000);
+let c=Math.floor(af/10000);
 
 aeth+=c;
 af-=c*10000;
@@ -366,7 +305,7 @@ save();
 updateUI();
 }
 
-/* ===== ENERGY REGEN ===== */
+/* ENERGY REGEN */
 
 setInterval(()=>{
 
@@ -378,21 +317,16 @@ updateUI();
 
 },3000);
 
-/* ===== SAVE ===== */
+/* SAVE */
 
 function save(){
 
-localStorage
-.setItem("af",af);
-
-localStorage
-.setItem("aeth",aeth);
-
-localStorage
-.setItem("energy",energy);
+localStorage.setItem("af",af);
+localStorage.setItem("aeth",aeth);
+localStorage.setItem("energy",energy);
 }
 
-/* ===== UI ===== */
+/* UI */
 
 function updateUI(){
 
@@ -406,17 +340,10 @@ energyBar.style.width=
 
 /* DOM */
 
-const afEl=
-document.getElementById("af");
-
-const aethEl=
-document.getElementById("aeth");
-
-const energyEl=
-document.getElementById("energy");
-
-const energyBar=
-document.getElementById("energyBar");
+const afEl=document.getElementById("af");
+const aethEl=document.getElementById("aeth");
+const energyEl=document.getElementById("energy");
+const energyBar=document.getElementById("energyBar");
 
 updateUI();
 
