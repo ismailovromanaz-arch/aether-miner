@@ -11,7 +11,11 @@ content="width=device-width, initial-scale=1.0">
 
 <style>
 
-/* ===== BODY ===== */
+/* ===== GLOBAL ===== */
+
+*{
+-webkit-tap-highlight-color: transparent;
+}
 
 body{
 margin:0;
@@ -22,52 +26,119 @@ overflow:hidden;
 user-select:none;
 }
 
-/* ===== SCREENS ===== */
+/* ===== SCREEN ===== */
 
 .screen{
-display:none;
 height:calc(100vh - 80px);
 padding:20px;
 text-align:center;
 }
 
-.active{display:block}
-
-/* ===== CORE ===== */
+/* ===== CORE REACTOR ===== */
 
 .core{
-font-size:120px;
-margin-top:40px;
+width:170px;
+height:170px;
+margin:50px auto;
+border-radius:50%;
 cursor:pointer;
-filter:drop-shadow(0 0 25px #00f0ff);
-animation:pulse 2s infinite;
-transition:.1s;
+position:relative;
+
+background:
+radial-gradient(circle,
+#00f0ff 0%,
+#9d4dff 40%,
+#050510 70%);
+
+box-shadow:
+0 0 40px #00f0ff,
+0 0 80px #9d4dff,
+inset 0 0 40px #00f0ff;
+
+animation:pulseCore 2s infinite;
 }
 
-@keyframes pulse{
-0%{filter:drop-shadow(0 0 10px #00f0ff)}
-50%{filter:drop-shadow(0 0 30px #9d4dff)}
-100%{filter:drop-shadow(0 0 10px #00f0ff)}
+/* Inner glow */
+
+.core::before{
+content:"";
+position:absolute;
+width:70%;
+height:70%;
+border-radius:50%;
+top:15%;
+left:15%;
+
+background:
+radial-gradient(circle,
+#ffffff,
+#00f0ff);
+
+opacity:.25;
 }
+
+/* Pulse */
+
+@keyframes pulseCore{
+0%{transform:scale(1)}
+50%{transform:scale(1.08)}
+100%{transform:scale(1)}
+}
+
+/* Tap press */
 
 .core:active{
-transform:scale(.85);
+transform:scale(.9);
+box-shadow:
+0 0 60px #00f0ff,
+0 0 100px #9d4dff;
 }
 
-/* FLOAT TEXT */
+/* ===== FLOAT TEXT ===== */
 
 .float{
 position:absolute;
 color:#00f0ff;
+font-weight:bold;
 animation:floatUp 1s forwards;
+pointer-events:none;
 }
 
 @keyframes floatUp{
-from{opacity:1;transform:translateY(0)}
-to{opacity:0;transform:translateY(-60px)}
+from{
+opacity:1;
+transform:translateY(0);
+}
+to{
+opacity:0;
+transform:translateY(-60px);
+}
 }
 
-/* ENERGY */
+/* ===== WAVE ===== */
+
+.wave{
+position:absolute;
+width:170px;
+height:170px;
+border-radius:50%;
+border:2px solid #00f0ff;
+animation:wave 0.6s forwards;
+pointer-events:none;
+}
+
+@keyframes wave{
+from{
+opacity:1;
+transform:scale(1);
+}
+to{
+opacity:0;
+transform:scale(2);
+}
+}
+
+/* ===== ENERGY ===== */
 
 .bar{
 width:90%;
@@ -86,7 +157,7 @@ width:100%;
 transition:.3s;
 }
 
-/* BUTTON */
+/* ===== BUTTON ===== */
 
 button{
 width:90%;
@@ -100,7 +171,7 @@ color:white;
 box-shadow:0 0 20px #9d4dff;
 }
 
-/* NAVBAR */
+/* ===== NAVBAR ===== */
 
 .navbar{
 position:fixed;
@@ -129,40 +200,38 @@ color:#00f0ff;
 
 <body>
 
-<!-- ===== MINER ===== -->
+<div class="screen">
 
-<div id="miner"
-class="screen active">
+<h2 id="welcome">
+Aether Miner
+</h2>
 
-<h2 id="welcome">Aether Miner</h2>
-
+<!-- CORE -->
 <div class="core"
-onclick="mine(event)">🌀</div>
+onclick="mine(event)">
+</div>
 
-<h3>Fragments:
+<h3>
+Fragments:
 <span id="af">0</span>
-/ 5 000</h3>
+/ 5 000
+</h3>
 
-<h3>Aether:
-<span id="aeth">0</span></h3>
+<h3>
+Aether:
+<span id="aeth">0</span>
+</h3>
 
 <div class="bar">
 <div class="fill"
 id="energyBar"></div>
 </div>
 
-<p>Energy:
+<p>
+Energy:
 <span id="energy">100</span>
-/100</p>
-
-</div>
-
-<!-- ===== CONVERT ===== -->
-
-<div id="convert"
-class="screen">
-
-<h2>Convert</h2>
+/100
+</p>
 
 <button onclick="convert()">
 Convert 10K AF → 1 AETH
@@ -170,17 +239,15 @@ Convert 10K AF → 1 AETH
 
 </div>
 
-<!-- ===== NAVBAR ===== -->
+<!-- NAVBAR -->
 
 <div class="navbar">
 
-<div class="tab active"
-onclick="openTab('miner',this)">
+<div class="tab active">
 Miner
 </div>
 
-<div class="tab"
-onclick="openTab('convert',this)">
+<div class="tab">
 Convert
 </div>
 
@@ -190,7 +257,9 @@ Convert
 
 /* ===== TELEGRAM USER ===== */
 
-const tg = window.Telegram.WebApp;
+const tg =
+window.Telegram.WebApp;
+
 tg.expand();
 
 let user =
@@ -198,23 +267,24 @@ tg.initDataUnsafe?.user;
 
 if(user){
 document.getElementById(
-"welcome").innerText =
-"Welcome, "+user.first_name;
+"welcome").innerText=
+"Welcome, "+
+user.first_name;
 }
 
-/* ===== SAVE LOAD ===== */
+/* ===== LOAD SAVE ===== */
 
 let af =
 parseInt(localStorage
-.getItem("af")) || 0;
+.getItem("af"))||0;
 
 let aeth =
 parseInt(localStorage
-.getItem("aeth")) || 0;
+.getItem("aeth"))||0;
 
 let energy =
 parseInt(localStorage
-.getItem("energy")) || 100;
+.getItem("energy"))||100;
 
 const maxEnergy=100;
 const dailyLimit=5000;
@@ -230,6 +300,8 @@ af++;
 energy--;
 
 floatText(e);
+waveEffect(e);
+
 save();
 updateUI();
 }
@@ -238,21 +310,41 @@ updateUI();
 
 function floatText(e){
 
-const el =
+const el=
 document.createElement("div");
 
 el.className="float";
 el.innerText="+1 AF";
 
-el.style.left =
+el.style.left=
 e.clientX+"px";
 
-el.style.top =
+el.style.top=
 e.clientY+"px";
 
 document.body.appendChild(el);
 
 setTimeout(()=>el.remove(),1000);
+}
+
+/* WAVE */
+
+function waveEffect(e){
+
+const wave=
+document.createElement("div");
+
+wave.className="wave";
+
+wave.style.left=
+(e.clientX-85)+"px";
+
+wave.style.top=
+(e.clientY-85)+"px";
+
+document.body.appendChild(wave);
+
+setTimeout(()=>wave.remove(),600);
 }
 
 /* ===== CONVERT ===== */
@@ -264,7 +356,7 @@ alert("Need 10K AF");
 return;
 }
 
-let c =
+let c=
 Math.floor(af/10000);
 
 aeth+=c;
@@ -312,36 +404,18 @@ energyBar.style.width=
 (energy/maxEnergy*100)+"%";
 }
 
-/* ===== TABS ===== */
-
-function openTab(id,el){
-
-document
-.querySelectorAll(".screen")
-.forEach(s=>s.classList
-.remove("active"));
-
-document
-.getElementById(id)
-.classList.add("active");
-
-document
-.querySelectorAll(".tab")
-.forEach(t=>t.classList
-.remove("active"));
-
-el.classList.add("active");
-}
-
 /* DOM */
 
-const afEl =
+const afEl=
 document.getElementById("af");
-const aethEl =
+
+const aethEl=
 document.getElementById("aeth");
-const energyEl =
+
+const energyEl=
 document.getElementById("energy");
-const energyBar =
+
+const energyBar=
 document.getElementById("energyBar");
 
 updateUI();
