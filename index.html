@@ -3,40 +3,107 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aether — Ship Assembly</title>
+<title>Aether Miner</title>
 
 <style>
 
-/* ===== BASE ===== */
+/* ===== GLOBAL ===== */
 
 body{
 margin:0;
+font-family:Arial,Helvetica,sans-serif;
 background:#000;
-font-family:Arial, sans-serif;
 color:#00ff9c;
 text-align:center;
-overflow-x:hidden;
 }
 
-/* ===== TITLE ===== */
+/* ===== NAV ===== */
 
-h1{
-margin-top:20px;
-font-size:28px;
-letter-spacing:2px;
+.nav{
+position:fixed;
+bottom:0;
+width:100%;
+display:flex;
+background:#000;
+border-top:1px solid #00ff9c33;
+}
+
+.nav button{
+flex:1;
+padding:14px;
+background:none;
+border:none;
+color:#00ff9c;
+font-size:16px;
+}
+
+/* ===== SCREENS ===== */
+
+.screen{ display:none; padding-bottom:80px; }
+.active{ display:block; }
+
+/* ===== RADAR ===== */
+
+.radar{
+width:260px;
+height:260px;
+margin:20px auto;
+border-radius:50%;
+border:2px solid #00ff9c55;
+position:relative;
+overflow:hidden;
+background:
+radial-gradient(circle,#00ff9c22 1px,transparent 1px),
+radial-gradient(circle,#00ff9c22 1px,transparent 1px);
+background-size:40px 40px;
+animation:rotateRadar 6s linear infinite;
+}
+
+@keyframes rotateRadar{
+from{ transform:rotate(0deg); }
+to{ transform:rotate(360deg); }
+}
+
+/* ===== STATS ===== */
+
+.bar{
+width:80%;
+height:16px;
+margin:10px auto;
+border:1px solid #00ff9c;
+border-radius:10px;
+overflow:hidden;
+}
+
+.fill{
+height:100%;
+background:#00ff9c;
+width:50%;
+}
+
+/* ===== BUTTON ===== */
+
+.convert{
+padding:14px 30px;
+border:none;
+border-radius:20px;
+background:#00ff9c;
+color:#000;
+font-weight:bold;
+margin:20px;
 }
 
 /* ===== SHIP FRAME ===== */
 
 .ship-frame{
-width:380px;
-height:420px;
+width:360px;
+height:360px;
 margin:20px auto;
 border:1px dashed #00ff9c22;
 border-radius:20px;
 position:relative;
 overflow:hidden;
-background:radial-gradient(circle at center,#00ff9c11,#000 70%);
+background:radial-gradient(circle,#00ff9c10,#000 70%);
 }
 
 /* ===== SHIP PARTS ===== */
@@ -45,54 +112,31 @@ background:radial-gradient(circle at center,#00ff9c11,#000 70%);
 position:absolute;
 left:50%;
 transform:translateX(-50%);
-transition:all .6s ease;
+transition:all .8s ease;
 }
 
-/* Cockpit */
+.cockpit{ width:90px; top:40px; }
+.wings{ width:280px; top:110px; }
+.engine{ width:220px; top:200px; }
+.reactor{ width:80px; top:260px; }
 
-.cockpit{
-width:110px;
-top:20px;
-z-index:5;
-animation:float 4s ease-in-out infinite;
+/* ===== HOVER ===== */
+
+.ship-frame:hover .ship-part{
+animation:hoverFloat 3s ease-in-out infinite;
 }
 
-/* Wings */
-
-.wings{
-width:320px;
-top:110px;
-z-index:3;
-animation:float 5s ease-in-out infinite;
-}
-
-/* Engine Body */
-
-.engine{
-width:260px;
-top:220px;
-z-index:2;
-animation:float 6s ease-in-out infinite;
-}
-
-/* Reactor */
-
-.reactor{
-width:90px;
-top:300px;
-z-index:4;
-animation:reactorPulse 2s infinite;
-}
-
-/* ===== FLOAT ANIMATION ===== */
-
-@keyframes float{
+@keyframes hoverFloat{
 0%{ transform:translate(-50%,0px); }
-50%{ transform:translate(-50%,-6px); }
+50%{ transform:translate(-50%,-4px); }
 100%{ transform:translate(-50%,0px); }
 }
 
 /* ===== REACTOR GLOW ===== */
+
+.reactor{
+animation:reactorPulse 2s infinite;
+}
 
 @keyframes reactorPulse{
 0%{ filter:drop-shadow(0 0 5px #00ff9c); }
@@ -104,142 +148,182 @@ animation:reactorPulse 2s infinite;
 
 .particle{
 position:absolute;
-width:4px;
-height:4px;
+width:3px;
+height:3px;
 background:#00ff9c;
 border-radius:50%;
-opacity:.7;
+opacity:.8;
 animation:particleMove linear infinite;
 }
 
 @keyframes particleMove{
 0%{
-transform:translateY(0) scale(1);
+transform:translateX(-50%) translateY(0);
 opacity:1;
 }
 100%{
-transform:translateY(-200px) scale(0);
+transform:translateX(-50%) translateY(-120px);
 opacity:0;
 }
 }
 
-/* ===== MINI PARTS ROW ===== */
+/* ===== PUZZLE ROW ===== */
 
-.parts-row{
+.puzzle-row{
 display:flex;
 justify-content:center;
-gap:15px;
-margin-top:20px;
-}
-
-.part-box{
-width:70px;
-height:70px;
-background:#0a0a0a;
-border-radius:12px;
-display:flex;
-align-items:center;
-justify-content:center;
-overflow:hidden;
-}
-
-.part-box img{
-width:80%;
-opacity:.25;
-filter:grayscale(100%);
-}
-
-.part-box.unlocked img{
-opacity:1;
-filter:none;
-}
-
-/* ===== TEXT ===== */
-
-.status{
-margin-top:20px;
-font-size:18px;
-}
-
-.boost{
+gap:10px;
 margin-top:10px;
-font-size:16px;
-color:#00ff9c;
 }
 
-/* ===== BUTTON ===== */
+.puzzle-row img{
+width:60px;
+opacity:.3;
+filter:blur(2px);
+}
 
-.reset-btn{
-margin-top:25px;
-padding:12px 30px;
+.reset{
+margin-top:20px;
+padding:10px 20px;
 border:1px solid #00ff9c;
-border-radius:10px;
-background:transparent;
+background:none;
 color:#00ff9c;
-font-size:16px;
-cursor:pointer;
-transition:.3s;
-}
-
-.reset-btn:hover{
-background:#00ff9c;
-color:#000;
-box-shadow:0 0 15px #00ff9c;
+border-radius:10px;
 }
 
 </style>
 </head>
 <body>
 
-<h1>Ship Assembly</h1>
+<!-- ===== MINER ===== -->
 
-<!-- ===== SHIP ===== -->
+<div id="miner" class="screen active">
+
+<h2>Aether Miner</h2>
+
+<div class="radar" onclick="mine()"></div>
+
+<div>Fragments: <span id="fragments">0</span></div>
+
+<div class="bar">
+<div id="fuelBar" class="fill"></div>
+</div>
+
+<div>Fuel: <span id="fuel">100</span></div>
+
+<button class="convert" onclick="convert()">Convert</button>
+
+</div>
+
+<!-- ===== SPECIAL ===== -->
+
+<div id="special" class="screen">
+
+<h2>Ship Assembly</h2>
 
 <div class="ship-frame" id="ship">
 
-<img src="assets/cockpit.png" class="ship-part cockpit">
-<img src="assets/wings.png" class="ship-part wings">
-<img src="assets/engine.png" class="ship-part engine">
-<img src="assets/reactor.png" class="ship-part reactor">
+<img src="cockpit.png" class="ship-part cockpit">
+<img src="wings.png" class="ship-part wings">
+<img src="engine.png" class="ship-part engine">
+<img src="reactor.png" class="ship-part reactor">
 
 </div>
 
-<!-- ===== STATUS ===== -->
+<div>Owned: 4 / 4</div>
+<div>MEGA BOOST ACTIVE — 30 DAYS</div>
 
-<div class="status">Owned: 4 / 4</div>
-<div class="boost">MEGA BOOST ACTIVE — 30 DAYS</div>
-
-<!-- ===== MINI PARTS ===== -->
-
-<div class="parts-row">
-
-<div class="part-box unlocked">
-<img src="assets/cockpit.png">
+<div class="puzzle-row">
+<img src="cockpit.png">
+<img src="wings.png">
+<img src="engine.png">
+<img src="reactor.png">
 </div>
 
-<div class="part-box unlocked">
-<img src="assets/wings.png">
-</div>
-
-<div class="part-box unlocked">
-<img src="assets/engine.png">
-</div>
-
-<div class="part-box unlocked">
-<img src="assets/reactor.png">
-</div>
+<button class="reset" onclick="resetPuzzle()">RESET PUZZLE</button>
 
 </div>
 
-<button class="reset-btn" onclick="resetPuzzle()">
-RESET PUZZLE
-</button>
+<!-- ===== NAV ===== -->
 
-<!-- ===== JS ===== -->
+<div class="nav">
+<button onclick="openScreen('miner')">Miner</button>
+<button onclick="openScreen('special')">Special</button>
+</div>
 
 <script>
 
-/* ===== PARTICLES SPAWN ===== */
+/* ===== DATA ===== */
+
+let fragments = localStorage.getItem("fragments") || 0;
+let fuel = localStorage.getItem("fuel") || 100;
+
+updateUI();
+
+/* ===== MINING ===== */
+
+function mine(){
+
+if(fuel<=0) return;
+
+fragments++;
+fuel--;
+
+save();
+updateUI();
+
+}
+
+/* ===== CONVERT ===== */
+
+function convert(){
+
+if(fragments>=10000){
+alert("Converted to Aether!");
+fragments=0;
+save();
+updateUI();
+}
+
+}
+
+/* ===== UI ===== */
+
+function updateUI(){
+
+document.getElementById("fragments").innerText=fragments;
+document.getElementById("fuel").innerText=fuel;
+document.getElementById("fuelBar").style.width=fuel+"%";
+
+}
+
+/* ===== STORAGE ===== */
+
+function save(){
+localStorage.setItem("fragments",fragments);
+localStorage.setItem("fuel",fuel);
+}
+
+/* ===== NAV ===== */
+
+function openScreen(id){
+
+document.querySelectorAll(".screen")
+.forEach(s=>s.classList.remove("active"));
+
+document.getElementById(id)
+.classList.add("active");
+
+}
+
+/* ===== RESET ===== */
+
+function resetPuzzle(){
+localStorage.clear();
+location.reload();
+}
+
+/* ===== PARTICLES ===== */
 
 function spawnParticles(){
 
@@ -247,28 +331,22 @@ const frame = document.getElementById("ship");
 
 setInterval(()=>{
 
-const p = document.createElement("div");
-p.className = "particle";
+const p=document.createElement("div");
+p.className="particle";
 
-p.style.left = Math.random()*100+"%";
-p.style.bottom = "0px";
-p.style.animationDuration = (2+Math.random()*3)+"s";
+p.style.left="50%";
+p.style.bottom="40px";
+p.style.animationDuration=(1.5+Math.random()*1.5)+"s";
 
 frame.appendChild(p);
 
-setTimeout(()=>p.remove(),5000);
+setTimeout(()=>p.remove(),3000);
 
-},300);
+},200);
 
 }
 
 spawnParticles();
-
-/* ===== RESET ===== */
-
-function resetPuzzle(){
-alert("Puzzle reset for test.");
-}
 
 </script>
 
