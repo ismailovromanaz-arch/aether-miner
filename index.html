@@ -1,365 +1,276 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aether — Ship Assembly</title>
 
 <style>
+
+/* ===== BASE ===== */
 
 body{
 margin:0;
 background:#000;
+font-family:Arial, sans-serif;
 color:#00ff9c;
-font-family:Arial;
 text-align:center;
+overflow-x:hidden;
 }
 
-/* ===== FRAME ===== */
+/* ===== TITLE ===== */
+
+h1{
+margin-top:20px;
+font-size:28px;
+letter-spacing:2px;
+}
+
+/* ===== SHIP FRAME ===== */
 
 .ship-frame{
-width:340px;
-height:340px;
+width:380px;
+height:420px;
 margin:20px auto;
 border:1px dashed #00ff9c22;
 border-radius:20px;
 position:relative;
 overflow:hidden;
+background:radial-gradient(circle at center,#00ff9c11,#000 70%);
 }
 
-/* ===== HOLOGRAM OVERLAY ===== */
+/* ===== SHIP PARTS ===== */
 
-.holo{
+.ship-part{
 position:absolute;
-width:100%;
-height:100%;
-pointer-events:none;
-background:
-repeating-linear-gradient(
-0deg,
-transparent,
-transparent 2px,
-#00ff9c11 3px);
-animation:holoScan 4s linear infinite;
+left:50%;
+transform:translateX(-50%);
+transition:all .6s ease;
 }
 
-@keyframes holoScan{
-from{background-position:0 0;}
-to{background-position:0 200px;}
-}
-
-/* ===== SHIP IDLE ===== */
-
-.ship-idle{
-animation:hoverShip 4s ease-in-out infinite;
-}
-
-@keyframes hoverShip{
-0%,100%{transform:translateY(0);}
-50%{transform:translateY(-6px);}
-}
-
-/* ===== PARTS ===== */
-
-.frame-part{
-position:absolute;
-opacity:0;
-transition:.6s;
-}
-
-.frame-part img{
-width:100%;
-height:100%;
-object-fit:contain;
-}
-
-.frame-part.owned{
-opacity:1;
-animation:materialize .6s;
-}
-
-@keyframes materialize{
-0%{
-opacity:0;
-transform:scale(.7);
-filter:blur(10px);
-}
-100%{
-opacity:1;
-transform:scale(1);
-filter:none;
-}
-}
-
-/* Positions */
+/* Cockpit */
 
 .cockpit{
-width:120px;
-top:10px;
-left:50%;
-transform:translateX(-50%);
-z-index:3;
+width:110px;
+top:20px;
+z-index:5;
+animation:float 4s ease-in-out infinite;
 }
+
+/* Wings */
 
 .wings{
-width:300px;
+width:320px;
 top:110px;
-left:50%;
-transform:translateX(-50%);
-z-index:2;
+z-index:3;
+animation:float 5s ease-in-out infinite;
 }
 
+/* Engine Body */
+
 .engine{
-width:240px;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-z-index:1;
+width:260px;
+top:220px;
+z-index:2;
+animation:float 6s ease-in-out infinite;
 }
 
 /* Reactor */
 
 .reactor{
 width:90px;
-top:180px;
-left:50%;
-transform:translateX(-50%);
+top:300px;
 z-index:4;
 animation:reactorPulse 2s infinite;
 }
 
+/* ===== FLOAT ANIMATION ===== */
+
+@keyframes float{
+0%{ transform:translate(-50%,0px); }
+50%{ transform:translate(-50%,-6px); }
+100%{ transform:translate(-50%,0px); }
+}
+
+/* ===== REACTOR GLOW ===== */
+
 @keyframes reactorPulse{
-0%,100%{
-filter:brightness(1);
+0%{ filter:drop-shadow(0 0 5px #00ff9c); }
+50%{ filter:drop-shadow(0 0 25px #00ff9c); }
+100%{ filter:drop-shadow(0 0 5px #00ff9c); }
 }
-50%{
-filter:brightness(1.8);
+
+/* ===== PARTICLES ===== */
+
+.particle{
+position:absolute;
+width:4px;
+height:4px;
+background:#00ff9c;
+border-radius:50%;
+opacity:.7;
+animation:particleMove linear infinite;
+}
+
+@keyframes particleMove{
+0%{
+transform:translateY(0) scale(1);
+opacity:1;
+}
+100%{
+transform:translateY(-200px) scale(0);
+opacity:0;
 }
 }
 
-/* ===== SHOP ===== */
+/* ===== MINI PARTS ROW ===== */
 
-.shop{
+.parts-row{
 display:flex;
 justify-content:center;
-gap:12px;
+gap:15px;
 margin-top:20px;
 }
 
-.shop-part{
-width:70px;height:70px;
-background:#111;
+.part-box{
+width:70px;
+height:70px;
+background:#0a0a0a;
 border-radius:12px;
-border:1px solid #00ff9c22;
-position:relative;
-cursor:pointer;
-filter:blur(2px) grayscale(1);
-opacity:.6;
-transition:.3s;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
 }
 
-.shop-part img{
-width:100%;
-height:100%;
-object-fit:contain;
+.part-box img{
+width:80%;
+opacity:.25;
+filter:grayscale(100%);
 }
 
-.shop-part.unlocked{
-filter:none;
+.part-box.unlocked img{
 opacity:1;
+filter:none;
 }
 
-/* Lock */
+/* ===== TEXT ===== */
 
-.lock{
-position:absolute;
-top:50%;left:50%;
-transform:translate(-50%,-50%);
+.status{
+margin-top:20px;
 font-size:18px;
 }
 
-/* ===== RESET ===== */
-
-.reset{
-margin-top:20px;
-padding:10px 20px;
-background:#001a12;
-border:1px solid #00ff9c;
-border-radius:12px;
+.boost{
+margin-top:10px;
+font-size:16px;
 color:#00ff9c;
+}
+
+/* ===== BUTTON ===== */
+
+.reset-btn{
+margin-top:25px;
+padding:12px 30px;
+border:1px solid #00ff9c;
+border-radius:10px;
+background:transparent;
+color:#00ff9c;
+font-size:16px;
 cursor:pointer;
+transition:.3s;
+}
+
+.reset-btn:hover{
+background:#00ff9c;
+color:#000;
+box-shadow:0 0 15px #00ff9c;
 }
 
 </style>
 </head>
-
 <body>
 
-<h2>Ship Assembly</h2>
+<h1>Ship Assembly</h1>
 
-<!-- FRAME -->
+<!-- ===== SHIP ===== -->
 
-<div class="ship-frame ship-idle">
+<div class="ship-frame" id="ship">
 
-<div class="holo"></div>
+<img src="assets/cockpit.png" class="ship-part cockpit">
+<img src="assets/wings.png" class="ship-part wings">
+<img src="assets/engine.png" class="ship-part engine">
+<img src="assets/reactor.png" class="ship-part reactor">
 
-<div id="f_cockpit"
-class="frame-part cockpit">
+</div>
+
+<!-- ===== STATUS ===== -->
+
+<div class="status">Owned: 4 / 4</div>
+<div class="boost">MEGA BOOST ACTIVE — 30 DAYS</div>
+
+<!-- ===== MINI PARTS ===== -->
+
+<div class="parts-row">
+
+<div class="part-box unlocked">
 <img src="assets/cockpit.png">
 </div>
 
-<div id="f_wings"
-class="frame-part wings">
+<div class="part-box unlocked">
 <img src="assets/wings.png">
 </div>
 
-<div id="f_engine"
-class="frame-part engine">
+<div class="part-box unlocked">
 <img src="assets/engine.png">
 </div>
 
-<div id="f_reactor"
-class="frame-part reactor">
+<div class="part-box unlocked">
 <img src="assets/reactor.png">
 </div>
 
 </div>
 
-<p>
-Owned:
-<span id="owned">0</span>/4
-</p>
-
-<p id="boost"></p>
-
-<!-- SHOP -->
-
-<div class="shop">
-
-<div id="s_cockpit"
-class="shop-part"
-onclick="buy('cockpit')">
-<img src="assets/cockpit.png">
-<div class="lock">🔒</div>
-</div>
-
-<div id="s_wings"
-class="shop-part"
-onclick="buy('wings')">
-<img src="assets/wings.png">
-<div class="lock">🔒</div>
-</div>
-
-<div id="s_engine"
-class="shop-part"
-onclick="buy('engine')">
-<img src="assets/engine.png">
-<div class="lock">🔒</div>
-</div>
-
-<div id="s_reactor"
-class="shop-part"
-onclick="buy('reactor')">
-<img src="assets/reactor.png">
-<div class="lock">🔒</div>
-</div>
-
-</div>
-
-<button class="reset"
-onclick="resetPuzzle()">
+<button class="reset-btn" onclick="resetPuzzle()">
 RESET PUZZLE
 </button>
 
+<!-- ===== JS ===== -->
+
 <script>
 
-/* ===== SAVE ===== */
+/* ===== PARTICLES SPAWN ===== */
 
-let ship=
-JSON.parse(
-localStorage.getItem("ship")
-)||{
-cockpit:false,
-wings:false,
-engine:false,
-reactor:false
-};
+function spawnParticles(){
 
-/* ===== BUY ===== */
+const frame = document.getElementById("ship");
 
-function buy(part){
+setInterval(()=>{
 
-ship[part]=true;
+const p = document.createElement("div");
+p.className = "particle";
 
-localStorage.setItem(
-"ship",
-JSON.stringify(ship)
-);
+p.style.left = Math.random()*100+"%";
+p.style.bottom = "0px";
+p.style.animationDuration = (2+Math.random()*3)+"s";
 
-update();
-}
+frame.appendChild(p);
 
-/* ===== UPDATE ===== */
+setTimeout(()=>p.remove(),5000);
 
-function update(){
-
-let owned=0;
-
-for(let p in ship){
-
-const frame=
-document.getElementById("f_"+p);
-
-const shop=
-document.getElementById("s_"+p);
-
-if(ship[p]){
-
-owned++;
-
-frame.classList.add("owned");
-
-shop.classList.add("unlocked");
-
-shop.querySelector(".lock")?.remove();
+},300);
 
 }
 
-}
-
-ownedEl.innerText=owned;
-
-if(owned===4){
-
-boost.innerText=
-"MEGA BOOST ACTIVE — 30 DAYS";
-
-}else{
-
-boost.innerText="";
-
-}
-
-}
-
-const ownedEl=
-document.getElementById("owned");
-
-const boost=
-document.getElementById("boost");
-
-update();
+spawnParticles();
 
 /* ===== RESET ===== */
 
 function resetPuzzle(){
-
-localStorage.removeItem("ship");
-location.reload();
-
+alert("Puzzle reset for test.");
 }
 
 </script>
+
 </body>
 </html>
