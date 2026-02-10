@@ -19,22 +19,53 @@ text-align:center;
 /* ===== FRAME ===== */
 
 .ship-frame{
-width:280px;
-height:280px;
+width:340px;
+height:340px;
 margin:20px auto;
-border:2px dashed #00ff9c55;
+border:1px dashed #00ff9c22;
 border-radius:20px;
 position:relative;
 overflow:hidden;
 }
 
-/* ===== PARTS IN FRAME ===== */
+/* ===== HOLOGRAM OVERLAY ===== */
+
+.holo{
+position:absolute;
+width:100%;
+height:100%;
+pointer-events:none;
+background:
+repeating-linear-gradient(
+0deg,
+transparent,
+transparent 2px,
+#00ff9c11 3px);
+animation:holoScan 4s linear infinite;
+}
+
+@keyframes holoScan{
+from{background-position:0 0;}
+to{background-position:0 200px;}
+}
+
+/* ===== SHIP IDLE ===== */
+
+.ship-idle{
+animation:hoverShip 4s ease-in-out infinite;
+}
+
+@keyframes hoverShip{
+0%,100%{transform:translateY(0);}
+50%{transform:translateY(-6px);}
+}
+
+/* ===== PARTS ===== */
 
 .frame-part{
 position:absolute;
-opacity:.15;
+opacity:0;
 transition:.6s;
-filter:brightness(.5);
 }
 
 .frame-part img{
@@ -45,15 +76,13 @@ object-fit:contain;
 
 .frame-part.owned{
 opacity:1;
-filter:none;
 animation:materialize .6s;
-box-shadow:0 0 25px #00ff9c;
 }
 
 @keyframes materialize{
 0%{
 opacity:0;
-transform:scale(.6);
+transform:scale(.7);
 filter:blur(10px);
 }
 100%{
@@ -65,10 +94,49 @@ filter:none;
 
 /* Positions */
 
-.cockpit{width:120px;top:0;left:50%;transform:translateX(-50%);}
-.wings{width:260px;top:90px;left:50%;transform:translateX(-50%);}
-.engine{width:200px;bottom:0;left:50%;transform:translateX(-50%);}
-.reactor{width:90px;top:110px;left:50%;transform:translateX(-50%);}
+.cockpit{
+width:120px;
+top:10px;
+left:50%;
+transform:translateX(-50%);
+z-index:3;
+}
+
+.wings{
+width:300px;
+top:110px;
+left:50%;
+transform:translateX(-50%);
+z-index:2;
+}
+
+.engine{
+width:240px;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+z-index:1;
+}
+
+/* Reactor */
+
+.reactor{
+width:90px;
+top:180px;
+left:50%;
+transform:translateX(-50%);
+z-index:4;
+animation:reactorPulse 2s infinite;
+}
+
+@keyframes reactorPulse{
+0%,100%{
+filter:brightness(1);
+}
+50%{
+filter:brightness(1.8);
+}
+}
 
 /* ===== SHOP ===== */
 
@@ -83,7 +151,7 @@ margin-top:20px;
 width:70px;height:70px;
 background:#111;
 border-radius:12px;
-border:1px solid #00ff9c33;
+border:1px solid #00ff9c22;
 position:relative;
 cursor:pointer;
 filter:blur(2px) grayscale(1);
@@ -100,7 +168,6 @@ object-fit:contain;
 .shop-part.unlocked{
 filter:none;
 opacity:1;
-box-shadow:0 0 12px #00ff9c;
 }
 
 /* Lock */
@@ -133,7 +200,9 @@ cursor:pointer;
 
 <!-- FRAME -->
 
-<div class="ship-frame">
+<div class="ship-frame ship-idle">
+
+<div class="holo"></div>
 
 <div id="f_cockpit"
 class="frame-part cockpit">
@@ -198,8 +267,6 @@ onclick="buy('reactor')">
 
 </div>
 
-<!-- RESET -->
-
 <button class="reset"
 onclick="resetPuzzle()">
 RESET PUZZLE
@@ -256,10 +323,6 @@ frame.classList.add("owned");
 shop.classList.add("unlocked");
 
 shop.querySelector(".lock")?.remove();
-
-}else{
-
-frame.classList.remove("owned");
 
 }
 
