@@ -3,169 +3,47 @@
 <head>
 
 <meta charset="UTF-8">
-<title>Aether</title>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<style>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-/* ===== GLOBAL ===== */
+<style>
 
 body{
 margin:0;
-font-family:Arial;
 background:#000;
 color:#00ff9c;
+font-family:Arial;
 text-align:center;
-overflow:hidden;
 }
 
-.screen{display:none;}
-.active{display:block;}
+/* ===== SHIP FRAME ===== */
 
-/* ===== HUD ===== */
-
-.hud{
-display:flex;
-align-items:center;
-gap:10px;
-padding:15px;
-}
-
-.avatar{
-width:45px;
-height:45px;
-border-radius:50%;
-border:2px solid #00ff9c;
-}
-
-/* ===== RADAR ===== */
-
-.radar{
+.ship-frame{
 width:260px;
 height:260px;
 margin:20px auto;
-border-radius:50%;
-border:2px solid #00ff9c;
-position:relative;
-overflow:hidden;
-
-background:
-radial-gradient(circle,#001a0f,#000);
-
-background-image:
-linear-gradient(#00ff9c22 1px,transparent 1px),
-linear-gradient(90deg,#00ff9c22 1px,transparent 1px);
-
-background-size:25px 25px;
-}
-
-.scan{
-position:absolute;
-width:50%;
-height:50%;
-top:50%;
-left:50%;
-transform-origin:0 0;
-background:linear-gradient(
-90deg,
-rgba(0,255,156,.5),
-transparent);
-
-animation:scan 3s linear infinite;
-}
-
-@keyframes scan{
-from{transform:rotate(0)}
-to{transform:rotate(360deg)}
-}
-
-/* Radar dots */
-
-.dot{
-position:absolute;
-width:6px;height:6px;
-background:#00ff9c;
-border-radius:50%;
-animation:blink 1s infinite;
-}
-
-@keyframes blink{
-0%,100%{opacity:.2}
-50%{opacity:1}
-}
-
-/* Hit flash */
-
-.flash{
-position:absolute;
-width:100%;
-height:100%;
-background:radial-gradient(
-circle,#00ff9c55,transparent);
-opacity:0;
-}
-
-.flash.active{
-animation:flash .3s;
-}
-
-@keyframes flash{
-0%{opacity:1}
-100%{opacity:0}
-}
-
-/* ===== FUEL ===== */
-
-.fuel-bar{
-width:90%;
-height:18px;
-margin:10px auto;
-border:1px solid #00ff9c;
-border-radius:12px;
-overflow:hidden;
-}
-
-.fuel-fill{
-height:100%;
-background:linear-gradient(
-90deg,#00ff9c,#ffee00,#ff2b2b);
-width:100%;
-transition:.3s;
-}
-
-/* ===== SHIP ===== */
-
-.ship-area{
-position:relative;
-width:260px;
-height:260px;
-margin:20px auto;
-}
-
-.holo{
-position:absolute;
-width:100%;
-height:100%;
-border:2px dashed #00ff9c44;
+border:2px dashed #00ff9c55;
 border-radius:20px;
+position:relative;
+overflow:hidden;
 }
 
-.part{
+/* Parts in frame */
+
+.frame-part{
 position:absolute;
 opacity:.15;
 transition:.5s;
 }
 
-.owned{
+.frame-part.owned{
 opacity:1;
 box-shadow:0 0 25px #00ff9c;
 }
 
-/* Parts */
+/* Shapes */
 
 .cockpit{
 width:80px;height:40px;
@@ -197,94 +75,77 @@ top:105px;left:50%;
 transform:translate(-50%);
 }
 
-/* ===== NAVBAR ===== */
+/* ===== SHOP ROW ===== */
 
-.navbar{
-position:fixed;
-bottom:0;
-width:100%;
-height:80px;
-background:#010201;
+.shop{
 display:flex;
-justify-content:space-around;
-align-items:center;
-border-top:1px solid #003322;
+justify-content:center;
+gap:10px;
+margin-top:20px;
 }
 
-.tab{color:#006644;cursor:pointer;}
-.tab.active{color:#00ff9c;}
+.shop-part{
+width:70px;
+height:70px;
+background:#111;
+border:1px solid #00ff9c33;
+border-radius:12px;
+position:relative;
+filter:blur(2px);
+opacity:.6;
+cursor:pointer;
+transition:.3s;
+}
+
+.shop-part.unlocked{
+filter:none;
+opacity:1;
+box-shadow:0 0 10px #00ff9c;
+}
+
+/* Lock */
+
+.lock{
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+font-size:20px;
+}
+
+/* ===== RESET ===== */
+
+.reset{
+margin-top:20px;
+padding:10px 20px;
+background:#001a12;
+border:1px solid #00ff9c;
+border-radius:12px;
+color:#00ff9c;
+cursor:pointer;
+}
 
 </style>
 </head>
 
 <body>
 
-<!-- HUD -->
-
-<div class="hud">
-<img id="avatar"
-class="avatar">
-<div id="welcome">
-Welcome
-</div>
-</div>
-
-<!-- ===== MINER ===== -->
-
-<div id="miner"
-class="screen active">
-
-<div class="radar"
-onclick="mine()">
-
-<div class="scan"></div>
-<div class="flash"
-id="flash"></div>
-
-</div>
-
-<h3>Fuel</h3>
-
-<div class="fuel-bar">
-<div class="fuel-fill"
-id="fuelBar"></div>
-</div>
-
-<p>
-Fragments:
-<span id="fragments">
-0
-</span>
-</p>
-
-</div>
-
-<!-- ===== SPECIAL ===== -->
-
-<div id="special"
-class="screen">
-
 <h2>Ship Assembly</h2>
 
-<div class="ship-area">
+<!-- FRAME -->
 
-<div class="holo"></div>
+<div class="ship-frame">
 
-<div class="part cockpit"
-onclick="buyPart('cockpit')"
-id="cockpit"></div>
+<div id="f_cockpit"
+class="frame-part cockpit"></div>
 
-<div class="part wings"
-onclick="buyPart('wings')"
-id="wings"></div>
+<div id="f_wings"
+class="frame-part wings"></div>
 
-<div class="part engine"
-onclick="buyPart('engine')"
-id="engine"></div>
+<div id="f_engine"
+class="frame-part engine"></div>
 
-<div class="part reactor"
-onclick="buyPart('reactor')"
-id="reactor"></div>
+<div id="f_reactor"
+class="frame-part reactor"></div>
 
 </div>
 
@@ -295,105 +156,46 @@ Owned:
 
 <p id="boost"></p>
 
+<!-- SHOP -->
+
+<div class="shop">
+
+<div class="shop-part"
+onclick="buy('cockpit')"
+id="s_cockpit">
+<div class="lock">🔒</div>
 </div>
 
-<!-- ===== NAVBAR ===== -->
-
-<div class="navbar">
-
-<div class="tab active"
-onclick="openTab('miner',this)">
-Miner
+<div class="shop-part"
+onclick="buy('wings')"
+id="s_wings">
+<div class="lock">🔒</div>
 </div>
 
-<div class="tab">Menu</div>
+<div class="shop-part"
+onclick="buy('engine')"
+id="s_engine">
+<div class="lock">🔒</div>
+</div>
 
-<div class="tab">Convert</div>
-
-<div class="tab"
-onclick="openTab('special',this)">
-Special
+<div class="shop-part"
+onclick="buy('reactor')"
+id="s_reactor">
+<div class="lock">🔒</div>
 </div>
 
 </div>
+
+<!-- RESET -->
+
+<button class="reset"
+onclick="resetPuzzle()">
+RESET PUZZLE
+</button>
 
 <script>
 
-/* TELEGRAM */
-
-const tg=
-window.Telegram.WebApp;
-tg.expand();
-
-/* PLAYER */
-
-let fuel=100;
-let fragments=0;
-
-/* RADAR DOTS */
-
-setInterval(()=>{
-
-const dot=
-document.createElement("div");
-
-dot.className="dot";
-
-dot.style.left=
-Math.random()*240+"px";
-
-dot.style.top=
-Math.random()*240+"px";
-
-document
-.querySelector(".radar")
-.appendChild(dot);
-
-setTimeout(()=>dot.remove(),2000);
-
-},800);
-
-/* MINE */
-
-function mine(){
-
-if(fuel<=0)return;
-
-fuel-=2;
-fragments++;
-
-fuelBar.style.width=
-fuel+"%";
-
-fragmentsEl.innerText=
-fragments;
-
-/* Flash */
-
-flash.classList.add("active");
-setTimeout(
-()=>flash.classList.remove("active"),
-300);
-
-/* Vibration */
-
-if(navigator.vibrate)
-navigator.vibrate(30);
-}
-
-/* AUTO FUEL */
-
-setInterval(()=>{
-
-if(fuel<100){
-fuel+=1;
-fuelBar.style.width=
-fuel+"%";
-}
-
-},2000);
-
-/* SHIP SAVE */
+/* SAVE */
 
 let ship=
 JSON.parse(
@@ -405,29 +207,42 @@ engine:false,
 reactor:false
 };
 
-function buyPart(name){
+/* BUY */
 
-ship[name]=true;
+function buy(part){
+
+ship[part]=true;
 
 localStorage.setItem(
 "ship",
 JSON.stringify(ship)
 );
 
-updateShip();
+update();
 }
 
-function updateShip(){
+/* UPDATE */
+
+function update(){
 
 let owned=0;
 
 for(let p in ship){
 
 if(ship[p]){
+
 owned++;
+
 document
-.getElementById(p)
+.getElementById(
+"f_"+p)
 .classList.add("owned");
+
+document
+.getElementById(
+"s_"+p)
+.classList.add("unlocked");
+
 }
 
 }
@@ -438,36 +253,32 @@ if(owned===4){
 boost.innerText=
 "MEGA BOOST ACTIVE — 30 DAYS";
 }
+
 }
 
 const ownedEl=
 document.getElementById("owned");
 
-const fuelBar=
-document.getElementById("fuelBar");
+const boost=
+document.getElementById("boost");
 
-const fragmentsEl=
-document.getElementById("fragments");
+update();
 
-updateShip();
+/* RESET */
 
-/* TABS */
+function resetPuzzle(){
 
-function openTab(id,el){
+localStorage.removeItem("ship");
 
-document
-.querySelectorAll(".screen")
-.forEach(s=>s.classList.remove("active"));
+ship={
+cockpit:false,
+wings:false,
+engine:false,
+reactor:false
+};
 
-document
-.getElementById(id)
-.classList.add("active");
+location.reload();
 
-document
-.querySelectorAll(".tab")
-.forEach(t=>t.classList.remove("active"));
-
-el.classList.add("active");
 }
 
 </script>
