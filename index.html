@@ -6,8 +6,6 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
 <style>
 
 body{
@@ -18,11 +16,11 @@ font-family:Arial;
 text-align:center;
 }
 
-/* ===== SHIP FRAME ===== */
+/* ===== FRAME ===== */
 
 .ship-frame{
-width:260px;
-height:260px;
+width:280px;
+height:280px;
 margin:20px auto;
 border:2px dashed #00ff9c55;
 border-radius:20px;
@@ -30,77 +28,79 @@ position:relative;
 overflow:hidden;
 }
 
-/* Parts in frame */
+/* ===== PARTS IN FRAME ===== */
 
 .frame-part{
 position:absolute;
 opacity:.15;
-transition:.5s;
+transition:.6s;
+filter:brightness(.5);
+}
+
+.frame-part img{
+width:100%;
+height:100%;
+object-fit:contain;
 }
 
 .frame-part.owned{
 opacity:1;
+filter:none;
+animation:materialize .6s;
 box-shadow:0 0 25px #00ff9c;
 }
 
-/* Shapes */
-
-.cockpit{
-width:80px;height:40px;
-background:#00ff9c;
-top:20px;left:50%;
-transform:translateX(-50%);
-clip-path:polygon(0 100%,50% 0,100% 100%);
+@keyframes materialize{
+0%{
+opacity:0;
+transform:scale(.6);
+filter:blur(10px);
+}
+100%{
+opacity:1;
+transform:scale(1);
+filter:none;
+}
 }
 
-.wings{
-width:200px;height:40px;
-background:#00ff9c;
-top:100px;left:50%;
-transform:translateX(-50%);
-}
+/* Positions */
 
-.engine{
-width:160px;height:40px;
-background:#00ff9c;
-bottom:20px;left:50%;
-transform:translateX(-50%);
-}
+.cockpit{width:120px;top:0;left:50%;transform:translateX(-50%);}
+.wings{width:260px;top:90px;left:50%;transform:translateX(-50%);}
+.engine{width:200px;bottom:0;left:50%;transform:translateX(-50%);}
+.reactor{width:90px;top:110px;left:50%;transform:translateX(-50%);}
 
-.reactor{
-width:50px;height:50px;
-background:#00ff9c;
-border-radius:50%;
-top:105px;left:50%;
-transform:translate(-50%);
-}
-
-/* ===== SHOP ROW ===== */
+/* ===== SHOP ===== */
 
 .shop{
 display:flex;
 justify-content:center;
-gap:10px;
+gap:12px;
 margin-top:20px;
 }
 
 .shop-part{
-width:70px;
-height:70px;
+width:70px;height:70px;
 background:#111;
-border:1px solid #00ff9c33;
 border-radius:12px;
+border:1px solid #00ff9c33;
 position:relative;
-filter:blur(2px);
-opacity:.6;
 cursor:pointer;
+filter:blur(2px) grayscale(1);
+opacity:.6;
 transition:.3s;
+}
+
+.shop-part img{
+width:100%;
+height:100%;
+object-fit:contain;
 }
 
 .shop-part.unlocked{
 filter:none;
 opacity:1;
-box-shadow:0 0 10px #00ff9c;
+box-shadow:0 0 12px #00ff9c;
 }
 
 /* Lock */
@@ -109,7 +109,7 @@ box-shadow:0 0 10px #00ff9c;
 position:absolute;
 top:50%;left:50%;
 transform:translate(-50%,-50%);
-font-size:20px;
+font-size:18px;
 }
 
 /* ===== RESET ===== */
@@ -136,16 +136,24 @@ cursor:pointer;
 <div class="ship-frame">
 
 <div id="f_cockpit"
-class="frame-part cockpit"></div>
+class="frame-part cockpit">
+<img src="assets/cockpit.png">
+</div>
 
 <div id="f_wings"
-class="frame-part wings"></div>
+class="frame-part wings">
+<img src="assets/wings.png">
+</div>
 
 <div id="f_engine"
-class="frame-part engine"></div>
+class="frame-part engine">
+<img src="assets/engine.png">
+</div>
 
 <div id="f_reactor"
-class="frame-part reactor"></div>
+class="frame-part reactor">
+<img src="assets/reactor.png">
+</div>
 
 </div>
 
@@ -160,27 +168,31 @@ Owned:
 
 <div class="shop">
 
-<div class="shop-part"
-onclick="buy('cockpit')"
-id="s_cockpit">
+<div id="s_cockpit"
+class="shop-part"
+onclick="buy('cockpit')">
+<img src="assets/cockpit.png">
 <div class="lock">🔒</div>
 </div>
 
-<div class="shop-part"
-onclick="buy('wings')"
-id="s_wings">
+<div id="s_wings"
+class="shop-part"
+onclick="buy('wings')">
+<img src="assets/wings.png">
 <div class="lock">🔒</div>
 </div>
 
-<div class="shop-part"
-onclick="buy('engine')"
-id="s_engine">
+<div id="s_engine"
+class="shop-part"
+onclick="buy('engine')">
+<img src="assets/engine.png">
 <div class="lock">🔒</div>
 </div>
 
-<div class="shop-part"
-onclick="buy('reactor')"
-id="s_reactor">
+<div id="s_reactor"
+class="shop-part"
+onclick="buy('reactor')">
+<img src="assets/reactor.png">
 <div class="lock">🔒</div>
 </div>
 
@@ -195,7 +207,7 @@ RESET PUZZLE
 
 <script>
 
-/* SAVE */
+/* ===== SAVE ===== */
 
 let ship=
 JSON.parse(
@@ -207,7 +219,7 @@ engine:false,
 reactor:false
 };
 
-/* BUY */
+/* ===== BUY ===== */
 
 function buy(part){
 
@@ -221,7 +233,7 @@ JSON.stringify(ship)
 update();
 }
 
-/* UPDATE */
+/* ===== UPDATE ===== */
 
 function update(){
 
@@ -229,19 +241,25 @@ let owned=0;
 
 for(let p in ship){
 
+const frame=
+document.getElementById("f_"+p);
+
+const shop=
+document.getElementById("s_"+p);
+
 if(ship[p]){
 
 owned++;
 
-document
-.getElementById(
-"f_"+p)
-.classList.add("owned");
+frame.classList.add("owned");
 
-document
-.getElementById(
-"s_"+p)
-.classList.add("unlocked");
+shop.classList.add("unlocked");
+
+shop.querySelector(".lock")?.remove();
+
+}else{
+
+frame.classList.remove("owned");
 
 }
 
@@ -250,8 +268,14 @@ document
 ownedEl.innerText=owned;
 
 if(owned===4){
+
 boost.innerText=
 "MEGA BOOST ACTIVE — 30 DAYS";
+
+}else{
+
+boost.innerText="";
+
 }
 
 }
@@ -264,19 +288,11 @@ document.getElementById("boost");
 
 update();
 
-/* RESET */
+/* ===== RESET ===== */
 
 function resetPuzzle(){
 
 localStorage.removeItem("ship");
-
-ship={
-cockpit:false,
-wings:false,
-engine:false,
-reactor:false
-};
-
 location.reload();
 
 }
