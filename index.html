@@ -42,44 +42,83 @@ border-radius:50%;
 border:2px solid #00ff9c;
 }
 
-/* ===== SHIP ===== */
+/* ===== SHIP AREA ===== */
 
-.ship-wrap{
-margin-top:20px;
+.ship-area{
+position:relative;
+width:260px;
+height:260px;
+margin:20px auto;
 }
 
-.ship-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-width:80%;
-margin:auto;
+/* Hologram */
+
+.holo{
+position:absolute;
+width:100%;
+height:100%;
+border:2px dashed #00ff9c33;
+border-radius:20px;
+box-shadow:0 0 30px #00ff9c22;
 }
+
+/* PARTS */
 
 .part{
-border:2px solid #00ff9c55;
-padding:20px;
-border-radius:14px;
-cursor:pointer;
-transition:.3s;
+position:absolute;
+background-size:cover;
+background-position:center;
+opacity:.15;
+transition:.5s;
+filter:hue-rotate(120deg);
 }
+
+/* MATERIALIZED */
 
 .part.owned{
-border-color:#00ff9c;
-box-shadow:0 0 15px #00ff9c;
-background:#001a0f;
+opacity:1;
+filter:none;
+box-shadow:0 0 25px #00ff9c;
 }
 
-.part-title{
-font-size:14px;
-margin-bottom:10px;
+/* POSITIONS */
+
+.cockpit{
+width:120px;height:70px;
+top:10px;left:50%;
+transform:translateX(-50%);
+background-image:url(
+"https://i.imgur.com/V6a9K8p.png");
+}
+
+.wings{
+width:200px;height:80px;
+top:80px;left:50%;
+transform:translateX(-50%);
+background-image:url(
+"https://i.imgur.com/1Q9Z1Zm.png");
+}
+
+.engine{
+width:180px;height:80px;
+bottom:10px;left:50%;
+transform:translateX(-50%);
+background-image:url(
+"https://i.imgur.com/8v3QK5F.png");
+}
+
+.reactor{
+width:70px;height:70px;
+top:95px;left:50%;
+transform:translateX(-50%);
+background-image:url(
+"https://i.imgur.com/y9pP6XW.png");
 }
 
 /* PROGRESS */
 
 .progress{
-margin-top:20px;
-font-size:14px;
+margin-top:10px;
 }
 
 /* BOOST */
@@ -88,6 +127,18 @@ font-size:14px;
 margin-top:10px;
 color:#00ff9c;
 font-weight:bold;
+}
+
+/* REFUEL */
+
+.refuel{
+margin-top:10px;
+padding:10px 20px;
+border:none;
+border-radius:12px;
+background:#00ff9c;
+color:#000;
+display:none;
 }
 
 /* NAVBAR */
@@ -103,14 +154,8 @@ justify-content:space-around;
 align-items:center;
 }
 
-.tab{
-color:#006644;
-cursor:pointer;
-}
-
-.tab.active{
-color:#00ff9c;
-}
+.tab{color:#006644;cursor:pointer;}
+.tab.active{color:#00ff9c;}
 
 </style>
 </head>
@@ -124,74 +169,46 @@ color:#00ff9c;
 <div id="welcome">Welcome</div>
 </div>
 
-<!-- ===== MINER SCREEN ===== -->
+<!-- ===== SPECIAL ===== -->
 
-<div id="miner" class="screen active">
-
-<h2>Radar Mining Active</h2>
-
-<p>Fragments farming...</p>
-
-</div>
-
-<!-- ===== SPECIAL SCREEN ===== -->
-
-<div id="special" class="screen">
+<div id="special" class="screen active">
 
 <h2>Ship Assembly</h2>
 
-<div class="ship-wrap">
+<div class="ship-area">
 
-<div class="ship-grid">
+<div class="holo"></div>
 
-<div class="part"
+<div class="part cockpit"
 onclick="buyPart('cockpit')"
-id="cockpit">
+id="cockpit"></div>
 
-<div class="part-title">Cockpit</div>
-+10 Fuel Cap
-
-</div>
-
-<div class="part"
-onclick="buyPart('engine')"
-id="engine">
-
-<div class="part-title">Engine</div>
-+10% Mining
-
-</div>
-
-<div class="part"
+<div class="part wings"
 onclick="buyPart('wings')"
-id="wings">
+id="wings"></div>
 
-<div class="part-title">Wings</div>
-+Passive AF
+<div class="part engine"
+onclick="buyPart('engine')"
+id="engine"></div>
 
-</div>
-
-<div class="part"
+<div class="part reactor"
 onclick="buyPart('reactor')"
-id="reactor">
-
-<div class="part-title">Reactor</div>
-+Fuel Regen
-
-</div>
+id="reactor"></div>
 
 </div>
 
 <div class="progress">
 Owned:
-<span id="owned">0</span>
-/ 4
+<span id="owned">0</span> / 4
 </div>
 
-<div class="boost" id="megaBoost">
-</div>
+<div class="boost" id="megaBoost"></div>
 
-</div>
+<button class="refuel"
+id="refuelBtn"
+onclick="useRefuel()">
+Full Refuel (3)
+</button>
 
 </div>
 
@@ -199,23 +216,7 @@ Owned:
 
 <div class="navbar">
 
-<div class="tab active"
-onclick="openTab('miner',this)">
-Miner
-</div>
-
-<div class="tab">
-Menu
-</div>
-
-<div class="tab">
-Convert
-</div>
-
-<div class="tab"
-onclick="openTab('special',this)">
-Special
-</div>
+<div class="tab active">Special</div>
 
 </div>
 
@@ -226,32 +227,24 @@ Special
 const tg=window.Telegram.WebApp;
 tg.expand();
 
-let user=tg.initDataUnsafe?.user;
-
-if(user){
-welcome.innerText=
-"Welcome, "+user.first_name;
-
-avatar.src=
-user.photo_url ||
-"https://i.imgur.com/6VBx3io.png";
-}
-
-/* ===== SHIP SAVE ===== */
+/* SHIP SAVE */
 
 let ship=
 JSON.parse(
 localStorage.getItem("ship")
 )||{
-
 cockpit:false,
-engine:false,
 wings:false,
+engine:false,
 reactor:false
-
 };
 
-/* BUY PART */
+let refuels=
+parseInt(
+localStorage.getItem("refuels")
+)||3;
+
+/* BUY */
 
 function buyPart(name){
 
@@ -283,7 +276,6 @@ for(let part in ship){
 
 if(ship[part]){
 owned++;
-
 document
 .getElementById(part)
 .classList.add("owned");
@@ -293,13 +285,14 @@ document
 
 ownedEl.innerText=owned;
 
-/* FULL SHIP */
+/* FULL */
 
 if(owned===4){
 
 megaBoost.innerText=
 "MEGA BOOST ACTIVE — 30 DAYS";
 
+refuelBtn.style.display="block";
 }
 }
 
@@ -308,23 +301,22 @@ document.getElementById("owned");
 
 updateShipUI();
 
-/* TABS */
+/* REFUEL */
 
-function openTab(id,el){
+function useRefuel(){
 
-document
-.querySelectorAll(".screen")
-.forEach(s=>s.classList.remove("active"));
+if(refuels<=0)return;
 
-document
-.getElementById(id)
-.classList.add("active");
+refuels--;
 
-document
-.querySelectorAll(".tab")
-.forEach(t=>t.classList.remove("active"));
+localStorage.setItem(
+"refuels",refuels
+);
 
-el.classList.add("active");
+alert("Fuel Restored!");
+
+refuelBtn.innerText=
+"Full Refuel ("+refuels+")";
 }
 
 </script>
